@@ -100,7 +100,7 @@ export default defineComponent({
   <button @click="switchPlayerMode" :disabled="isProdMode">{{ singlePlayerMode?"Single-Player Mode":"Multiplayer mode" }}</button>
 
   <div v-if="singlePlayerMode" class="singleplayer">
-    <p>Length of sides (in arbitrary units ~em):</p>
+    <p>Length of sides (in % of shortest viewport dimension):</p>
     <input type="number" class="dimensions-selector" min="50" max="200" v-model.number="Dimensions">
     <p>Level of Nesting (1 to 4):</p>
     <!--
