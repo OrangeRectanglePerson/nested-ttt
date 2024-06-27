@@ -41,10 +41,14 @@ export const currPlayerStore = defineStore({
         addHistory(move:string){
             this.history += move+" "
             let protoNextWaffle: string =  move.substring(0,this.nestingLevel-1)
-            //console.log(protoNextWaffle)
-            //console.log(this.isOClaimed(protoNextWaffle))
+            //History stores move position in a "reverse" order.
+            //The least significant digit encodes which 1st level square (largest hash layer) the move was placed in,
+            //the most significant digit encodes which lowest level square the move was placed in.
+            //A move's next waffle can be obtained by truncating the least significant digit.
+            //However, if that space is already claimed, we truncate the most significant digit from the protoNextWaffle
+            //to get one waffle level higher.
             while(this.nestingLevel>1 && (this.isXClaimed(protoNextWaffle)||this.isOClaimed(protoNextWaffle))){
-                protoNextWaffle = protoNextWaffle.substring(0,protoNextWaffle.length-1)
+                protoNextWaffle = protoNextWaffle.substring(1,protoNextWaffle.length)
             }
             this.nextWaffle = protoNextWaffle
         },
@@ -185,5 +189,6 @@ export const currPlayerStore = defineStore({
                 return false
             }
         },
+        //TODO: Implement Tied Square Checking & Logic
     }
 })(globalPiniaInstance)

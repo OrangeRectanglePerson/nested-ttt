@@ -59,7 +59,9 @@ export default defineComponent({
     //console.log("updated")
   },
   computed:{
-
+    maxWidth () {
+      return this.Dimensions+"vmin"
+    }
 
   },
   methods:{
@@ -166,7 +168,8 @@ input{
 }
 
 .gameHistory{
-  margin: 1em;
+  margin: 1em 0;
+  max-width: v-bind(maxWidth);
 }
 
 .save-history-input{

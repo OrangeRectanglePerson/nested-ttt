@@ -193,6 +193,7 @@ export default defineComponent({
         return false
       }
     },
+    //TODO: Implement Tied Square Checking
 
   }
 })

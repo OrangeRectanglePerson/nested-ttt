@@ -86,6 +86,11 @@ export default defineComponent({
       return false
     },
 
+    isTied : function (){
+      // if square status is full (aka if it does not contain 0 (unclaimed space)) & not claimed by o or x
+      return (!this.square_status.includes(0) && !(this.isOClaimed || this.isXClaimed))
+    },
+
     //is this Waffle one that can be played on
     isNextWaffleSoft : function (){
       let lowestWaffleReferenceSubstring : string = this.lowestWaffleReference!
@@ -95,6 +100,10 @@ export default defineComponent({
     //is this waffle one that should be highlighted
     isNextWaffleHard : function (){
       return this.originalNestingLevel !== 1 ? this.lowestWaffleReference === this.currentPlayerStore.nextWaffle : false
+    },
+    //is this waffle already claimed
+    isWaffleAlreadyClaimed : function (){
+      return this.isOClaimed || this.isXClaimed
     },
 
     // dimensions for square css
@@ -108,7 +117,8 @@ export default defineComponent({
   },
   methods:{
     waffleSquareClick(squareNumber : number){
-      if ((squareNumber>=0) && (squareNumber<=8) && (this.square_status[squareNumber] === 0) && this.isNextWaffleSoft) {
+      if ((squareNumber>=0) && (squareNumber<=8) && (this.square_status[squareNumber] === 0)
+          && this.isNextWaffleSoft && !this.isWaffleAlreadyClaimed){
         currPlayerStore.loadingPlayerBoard = true
         setTimeout(()=>{
           this.square_status[squareNumber] = this.currentPlayerStore.player
@@ -166,6 +176,7 @@ export default defineComponent({
     </div>
     <img v-show="isXClaimed" src="../assets/bigCross.png" class="lowest-waffle-container-overlay x" alt="unclaimed"/>
     <img v-show="isOClaimed" src="../assets/bigCircle.png" class="lowest-waffle-container-overlay o" alt="unclaimed"/>
+    <div v-show="isTied" class="lowest-waffle-container-overlay tie-shade"/>
     <div v-show="isNextWaffleHard" class="lowest-waffle-container-overlay agree-halo"/>
   </div>
 
@@ -218,6 +229,9 @@ export default defineComponent({
 .agree-halo{
   box-shadow: 0 0 v-bind(squaredim/9 + "vmin") v-bind(squaredim/9 + "vmin") greenyellow;
   z-index: 10;
+}
+.tie-shade{
+  background-color: #80808080;
 }
 
 </style>
