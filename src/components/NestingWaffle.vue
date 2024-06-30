@@ -176,7 +176,7 @@ export default defineComponent({
   color: orange;
 }
 .agree-halo{
-  box-shadow: 0 0 v-bind(thisLvDims/90 + "vmin") v-bind(thisLvDims/90 + "vmin") greenyellow;
+  box-shadow: 0 0 v-bind(thisLvDims/95 + "vmin") v-bind(thisLvDims/95 + "vmin") MediumPurple;
   z-index: 10;
 }
 .tie-shade{

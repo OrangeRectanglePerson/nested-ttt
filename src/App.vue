@@ -1,5 +1,4 @@
 <script  lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
 import LowestWaffle from "./components/LowestWaffle.vue";
 import NestingWaffle from "./components/NestingWaffle.vue";
 import {defineComponent} from "vue";
@@ -13,7 +12,6 @@ export default defineComponent({
   },
   components:{
     MultiplayerSignIn,
-    HelloWorld,
     LowestWaffle,
     NestingWaffle
   },
@@ -95,7 +93,11 @@ export default defineComponent({
       <img src="./assets/ttt.png" class="logo" alt="tic tac toe" />
     </a>
   </div>
-  <HelloWorld msg="Nested Tic Tac Toe" />
+
+  <h1>Nested Tic-Tac-Toe</h1>
+
+  <p class="desc">Play nested tic tac toe (on the same machine) with your friend!</p>
+  <p class="more-to-come">Online multiplayer coming soon.</p>
 
   <button @click="switchPlayerMode" :disabled="isProdMode">{{ singlePlayerMode?"Single-Player Mode":"Multiplayer mode" }}</button>
 
@@ -144,6 +146,18 @@ export default defineComponent({
 </template>
 
 <style scoped>
+@media (prefers-color-scheme: light) {
+  p{
+    color: black;
+  }
+  textarea{
+    background-color: lavenderblush;
+  }
+  button{
+    background-color: lavender;
+  }
+}
+
 button{
   width: 20vmax;
   margin: 1vh auto;
