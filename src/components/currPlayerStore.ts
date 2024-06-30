@@ -47,11 +47,18 @@ export const currPlayerStore = defineStore({
             //A move's next waffle can be obtained by truncating the least significant digit.
             //However, if that space is already claimed, we truncate the most significant digit from the protoNextWaffle
             //to get one waffle level higher.
-            while(protoNextWaffle!=="" && this.nestingLevel>1 && (this.isClaimed(protoNextWaffle)!==0 || this.isTied(protoNextWaffle))){
-                protoNextWaffle = protoNextWaffle.substring(1,protoNextWaffle.length)
-                console.log(protoNextWaffle)
+
+            //Truncate the protoNextWaffle to the highest unclaimed level.
+            //Check current waffle level and if it is claimed, set substring to one level up. Check all the way though
+            //the layers until all levels are checked through to not miss any level's claim.
+            let substring_to : number = 0
+            for (let i = 0; i<=protoNextWaffle.length; i++){
+                if (currPlayerStore.isClaimed(protoNextWaffle.substring(i))!==0) {
+                    substring_to = i+1
+                }
             }
-            this.nextWaffle = protoNextWaffle
+
+            this.nextWaffle = protoNextWaffle.substring(substring_to)
         },
 
         loadGame(history:string){
