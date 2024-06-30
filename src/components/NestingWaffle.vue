@@ -95,105 +95,14 @@ export default defineComponent({
   methods:{
 
     isXClaimed(whichSquare:string) {
-      //console.log(this.currentPlayerStore.gameState)
-      if (whichSquare.length === this.originalNestingLevel!-1) {
-        let getGameArrPos : number = parseInt(whichSquare,9)
-        //console.log(whichSquare)
-        //console.log(getGameArrPos)
-
-        let square_status : number[] = this.currentPlayerStore.gameState[getGameArrPos]
-
-        let xString: string = "";
-        for (let i = 0; i < 9; i++) {
-          if (square_status[i] === -1) xString += (i + 1).toString()
-        }
-        //console.log(xString)
-        const winners = ["123", "147", "159", "258", "357", "369", "456", "789"]
-        for (const w of winners) {
-          let wins = true
-          for (const ch of w) {
-            //console.log(w)
-            if (!xString.includes(ch)) {
-              wins = false
-            }
-          }
-          if (wins) {
-            return true
-          }
-        }
-        return false
-      } else {
-        let xString: string = "";
-
-        for (let i = 0; i <= 8; i++) {
-          if (this.isXClaimed(i.toString()+whichSquare)) xString += (i + 1).toString()
-
-        }
-
-        const winners = ["123", "147", "159", "258", "357", "369", "456", "789"]
-        for (const w of winners) {
-          let wins = true
-          for (const ch of w) {
-            //console.log(w)
-            if (!xString.includes(ch)) {
-              wins = false
-            }
-          }
-          if (wins) {
-            return true
-          }
-        }
-        return false
-      }
+      return currPlayerStore.isClaimed(whichSquare)===-1
     },
     isOClaimed(whichSquare:string) {
-      if (whichSquare.length === this.originalNestingLevel!-1) {
-        let getGameArrPos : number = parseInt(whichSquare,9)
-        let square_status : number[] = this.currentPlayerStore.gameState[getGameArrPos]
-
-        let oString: string = "";
-        for (let i = 0; i < square_status.length; i++) {
-          if (square_status[i] === 1) oString += (i + 1).toString()
-        }
-        //console.log(xString)
-        const winners = ["123", "147", "159", "258", "357", "369", "456", "789"]
-        for (const w of winners) {
-          let wins = true
-          for (const ch of w) {
-            //console.log(w)
-            if (!oString.includes(ch)) {
-              wins = false
-            }
-          }
-          if (wins) {
-            return true
-          }
-        }
-        return false
-      } else {
-        let oString: string = "";
-
-        for (let i = 0; i <= 8; i++) {
-          if (this.isOClaimed(i.toString()+whichSquare)) oString += (i + 1).toString()
-        }
-        //console.log(oString)
-        const winners = ["123", "147", "159", "258", "357", "369", "456", "789"]
-        for (const w of winners) {
-          let wins = true
-          for (const ch of w) {
-            //console.log(w)
-            if (!oString.includes(ch)) {
-              wins = false
-            }
-          }
-          if (wins) {
-            return true
-          }
-        }
-        return false
-      }
+      return currPlayerStore.isClaimed(whichSquare)===1
     },
-    //TODO: Implement Tied Square Checking
+    isTied(whichSquare:string){
+      return currPlayerStore.isTied(whichSquare)
+    }
 
   }
 })
@@ -221,6 +130,7 @@ export default defineComponent({
 
     <img v-if="nestingLevel>1" v-show="isXClaimed(lowestWaffleReference)" src="../assets/bigCross.png" class="nesting-waffle-container-overlay x" alt="unclaimed"/>
     <img v-if="nestingLevel>1" v-show="isOClaimed(lowestWaffleReference)" src="../assets/bigCircle.png" class="nesting-waffle-container-overlay o" alt="unclaimed"/>
+    <div v-if="nestingLevel>1" v-show="isTied(lowestWaffleReference)" class="nesting-waffle-container-overlay tie-shade"/>
     <div v-if="nestingLevel>1" v-show="isNextWaffleHard" class="nesting-waffle-container-overlay agree-halo"/>
   </div>
   <p v-else>TTC Board is not available.</p>
@@ -268,6 +178,9 @@ export default defineComponent({
 .agree-halo{
   box-shadow: 0 0 v-bind(thisLvDims/90 + "vmin") v-bind(thisLvDims/90 + "vmin") greenyellow;
   z-index: 10;
+}
+.tie-shade{
+  background-color: #80808080;
 }
 
 .resetButton{

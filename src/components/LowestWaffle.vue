@@ -103,7 +103,13 @@ export default defineComponent({
     },
     //is this waffle already claimed
     isWaffleAlreadyClaimed : function (){
-      return this.isOClaimed || this.isXClaimed
+      //check this waffle
+      if (this.isOClaimed || this.isXClaimed) return true
+      //check waffle layers that encompass this one
+      for (let i = 1; i<=this.lowestWaffleReference.length; i++){
+        if (currPlayerStore.isClaimed(this.lowestWaffleReference.substring(i))!==0) return true
+      }
+      return false
     },
 
     // dimensions for square css
@@ -117,6 +123,7 @@ export default defineComponent({
   },
   methods:{
     waffleSquareClick(squareNumber : number){
+      // no need to check for tie: all squares in waffle will fail first 2 conditions
       if ((squareNumber>=0) && (squareNumber<=8) && (this.square_status[squareNumber] === 0)
           && this.isNextWaffleSoft && !this.isWaffleAlreadyClaimed){
         currPlayerStore.loadingPlayerBoard = true

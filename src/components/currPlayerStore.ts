@@ -1,5 +1,4 @@
 import {defineStore} from "pinia";
-import {text} from "stream/consumers";
 import {globalPiniaInstance} from "../global";
 
 export const currPlayerStore = defineStore({
@@ -39,6 +38,7 @@ export const currPlayerStore = defineStore({
             //console.log(this.gameState)
         },
         addHistory(move:string){
+            //also sets up next move
             this.history += move+" "
             let protoNextWaffle: string =  move.substring(0,this.nestingLevel-1)
             //History stores move position in a "reverse" order.
@@ -47,8 +47,9 @@ export const currPlayerStore = defineStore({
             //A move's next waffle can be obtained by truncating the least significant digit.
             //However, if that space is already claimed, we truncate the most significant digit from the protoNextWaffle
             //to get one waffle level higher.
-            while(this.nestingLevel>1 && (this.isXClaimed(protoNextWaffle)||this.isOClaimed(protoNextWaffle))){
+            while(protoNextWaffle!=="" && this.nestingLevel>1 && (this.isClaimed(protoNextWaffle)!==0 || this.isTied(protoNextWaffle))){
                 protoNextWaffle = protoNextWaffle.substring(1,protoNextWaffle.length)
+                console.log(protoNextWaffle)
             }
             this.nextWaffle = protoNextWaffle
         },
@@ -90,105 +91,101 @@ export const currPlayerStore = defineStore({
 
 
 
-        isXClaimed(whichSquare:string) {
+        isClaimed(whichSquare:string) : 1|0|-1{
             //console.log(this.currentPlayerStore.gameState)
             if (whichSquare.length === this.nestingLevel!-1) {
-                console.log(whichSquare)
+                //console.log(whichSquare)
                 let getGameArrPos : number = parseInt(whichSquare,9)
-                console.log(getGameArrPos)
+                //console.log(getGameArrPos)
 
                 let square_status : number[] = this.gameState[getGameArrPos]
 
                 let xString: string = "";
+                let oString: string = "";
                 for (let i = 0; i < 9; i++) {
+                    if (square_status[i] === 1) oString += (i + 1).toString()
                     if (square_status[i] === -1) xString += (i + 1).toString()
                 }
                 //console.log(xString)
                 const winners = ["123", "147", "159", "258", "357", "369", "456", "789"]
                 for (const w of winners) {
-                    let wins = true
+                    let xWins = true
+                    let oWins = true
                     for (const ch of w) {
                         //console.log(w)
                         if (!xString.includes(ch)) {
-                            wins = false
+                            xWins = false
+                        }
+                        if (!oString.includes(ch)) {
+                            oWins = false
                         }
                     }
-                    if (wins) {
-                        return true
+                    if(oWins) {
+                        return 1
+                    }
+                    if (xWins) {
+                        return -1
                     }
                 }
-                return false
+                return 0
             } else {
                 let xString: string = "";
+                let oString: string = "";
 
                 for (let i = 0; i <= 8; i++) {
-                    if (this.isXClaimed(i.toString()+whichSquare)) xString += (i + 1).toString()
-
+                    const claimedStatus = this.isClaimed(i.toString()+whichSquare)
+                    if (claimedStatus===1) oString += (i + 1).toString()
+                    else if (claimedStatus===-1) xString += (i + 1).toString()
                 }
 
                 const winners = ["123", "147", "159", "258", "357", "369", "456", "789"]
                 for (const w of winners) {
-                    let wins = true
+                    let xWins = true
+                    let oWins = true
                     for (const ch of w) {
                         //console.log(w)
                         if (!xString.includes(ch)) {
-                            wins = false
+                            xWins = false
+                        }
+                        if (!oString.includes(ch)) {
+                            oWins = false
                         }
                     }
-                    if (wins) {
-                        return true
+                    if(oWins) {
+                        return 1
+                    }
+                    if (xWins) {
+                        return -1
                     }
                 }
-                return false
+                return 0
             }
         },
-        isOClaimed(whichSquare:string) {
-            if (whichSquare.length === this.nestingLevel!-1) {
-                let getGameArrPos : number = parseInt(whichSquare,9)
-                let square_status : number[] = this.gameState[getGameArrPos]
 
-                let oString: string = "";
-                for (let i = 0; i < square_status.length; i++) {
-                    if (square_status[i] === 1) oString += (i + 1).toString()
-                }
-                //console.log(xString)
-                const winners = ["123", "147", "159", "258", "357", "369", "456", "789"]
-                for (const w of winners) {
-                    let wins = true
-                    for (const ch of w) {
-                        //console.log(w)
-                        if (!oString.includes(ch)) {
-                            wins = false
-                        }
-                    }
-                    if (wins) {
-                        return true
-                    }
-                }
-                return false
-            } else {
-                let oString: string = "";
-
-                for (let i = 0; i <= 8; i++) {
-                    if (this.isOClaimed(i.toString()+whichSquare)) oString += (i + 1).toString()
-                }
-                //console.log(oString)
-                const winners = ["123", "147", "159", "258", "357", "369", "456", "789"]
-                for (const w of winners) {
-                    let wins = true
-                    for (const ch of w) {
-                        //console.log(w)
-                        if (!oString.includes(ch)) {
-                            wins = false
-                        }
-                    }
-                    if (wins) {
-                        return true
-                    }
-                }
-                return false
+        isTied(whichSquare:string) {
+            //check if all squares are taken & x or o arent claiming this square
+            if (this.isClaimed(whichSquare)!==0) { return false }
+            //if checking the highest waffle level (blank string input):
+            if(whichSquare.length === 0 ) { return !this.gameState.flat().includes(0) }
+            //if this is already checking the lowest level waffle:
+            if (whichSquare.length===this.nestingLevel!-1){
+                return (!this.gameState[parseInt(whichSquare,9)].includes(0))
             }
+            //if we need to check multiple mini waffles:
+            //make an array of all gamestate smallest waffles to check:
+            let wafflesToCheck : number[] = []
+            for (let i = 0; i < 9**(this.nestingLevel-whichSquare.length-1); i++) {
+                wafflesToCheck.push(i*(9**whichSquare.length) + parseInt(whichSquare,9))
+                //console.log(whichSquare)
+            }
+
+            //check for unfilled squares
+            for (const waffleIndex of wafflesToCheck) {
+                //console.log(waffleIndex)
+                if (this.gameState[waffleIndex].includes(0)) { return false }
+            }
+            //if no unfilled squares, waffle is tied
+            return true
         },
-        //TODO: Implement Tied Square Checking & Logic
     }
 })(globalPiniaInstance)
